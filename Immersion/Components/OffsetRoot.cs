@@ -4,17 +4,20 @@ namespace Immersion.Components;
 
 public class OffsetRoot : MonoBehaviour
 {
-    private (Vector3 position, Quaternion rotation) currentOffset;
+    private Vector3 nextLocalPosition;
 
-    private (Vector3 position, Quaternion rotation) nextOffset;
+    private Quaternion nextLocalRotation;
 
-    public static OffsetRoot NewOffsetRoot(string name, GameObject gameObject)
+    private GameObject pivotObject;
+
+    public static OffsetRoot NewOffsetRoot(string name, GameObject objectToOffset)
     {
         var offsetRoot = new GameObject(name).AddComponent<OffsetRoot>();
-        offsetRoot.transform.parent = gameObject.transform.parent;
+        offsetRoot.transform.parent = objectToOffset.transform.parent;
         offsetRoot.transform.localPosition = Vector3.zero;
         offsetRoot.transform.localEulerAngles = Vector3.zero;
-        gameObject.transform.parent = offsetRoot.transform;
+        offsetRoot.pivotObject = objectToOffset;
+        objectToOffset.transform.parent = offsetRoot.transform;
         return offsetRoot;
     }
 
@@ -22,18 +25,18 @@ public class OffsetRoot : MonoBehaviour
     /// Adds a translational offset to be applied on the next LateUpdate
     /// </summary>
     /// <param name="position">The translational component of the offset</param>
-    public virtual void AddOffset(Vector3 position)
+    public void AddOffset(Vector3 position)
     {
-        nextOffset.position += position;
+        nextLocalPosition += position;
     }
 
     /// <summary>
     /// Adds a rotational offset to be applied on the next LateUpdate
     /// </summary>
     /// <param name="rotation">The rotational component of the offset</param>
-    public virtual void AddOffset(Quaternion rotation)
+    public void AddOffset(Quaternion rotation)
     {
-        nextOffset.rotation *= rotation;
+        nextLocalRotation *= rotation;
     }
 
     /// <summary>
@@ -50,17 +53,18 @@ public class OffsetRoot : MonoBehaviour
     private void ApplyOffset()
     {
         ResetOffset();
-        currentOffset = nextOffset;
-        transform.localPosition += currentOffset.position;
-        transform.localRotation *= currentOffset.rotation;
-        nextOffset = (Vector3.zero, Quaternion.identity);
+
+        transform.localPosition = nextLocalPosition;
+        nextLocalRotation.ToAngleAxis(out float angle, out Vector3 axis);
+        transform.RotateAround(pivotObject.transform.position, pivotObject.transform.TransformDirection(axis), angle);
+
+        (nextLocalPosition, nextLocalRotation) = (Vector3.zero, Quaternion.identity);
     }
 
     private void ResetOffset()
     {
-        transform.localPosition -= currentOffset.position;
-        transform.localRotation *= Quaternion.Inverse(currentOffset.rotation);
-        currentOffset = (Vector3.zero, Quaternion.identity);
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
     }
 
     private void LateUpdate()
