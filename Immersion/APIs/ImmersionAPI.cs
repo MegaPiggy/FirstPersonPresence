@@ -1,8 +1,9 @@
 ﻿using Immersion.Components;
+using Immersion.Utils;
 using System;
 using UnityEngine;
 
-namespace Immersion;
+namespace Immersion.APIs;
 
 public class ImmersionAPI
 {

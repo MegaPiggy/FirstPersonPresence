@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
-using Immersion.Components;
-using Immersion.Interfaces;
+using Immersion.APIs;
+using Immersion.Utils;
 using OWML.Common;
 using OWML.ModHelper;
 using System.Reflection;
@@ -14,6 +14,8 @@ public class ModMain : ModBehaviour
     public static ISmolHatchling SmolHatchlingAPI { get; private set; }
 
     public static IHikersMod HikersModAPI { get; private set; }
+
+    public static bool IsTheStrangerTheyAreInstalled;
 
     public static void Log(string message, MessageType type = MessageType.Message)
     {
@@ -39,11 +41,6 @@ public class ModMain : ModBehaviour
 
         // create harmony patches
         new Harmony("Owen_013.FirstPersonPresence").PatchAll(Assembly.GetExecutingAssembly());
-
-        LoadManager.OnCompleteSceneLoad += (_, _) =>
-        {
-            ViewmodelArm.LoadAssetIfNull();
-        };
     }
 
     private void Start()
@@ -51,6 +48,10 @@ public class ModMain : ModBehaviour
         // check for other mods
         SmolHatchlingAPI = ModHelper.Interaction.TryGetModApi<ISmolHatchling>("Owen013.TeenyHatchling");
         HikersModAPI = ModHelper.Interaction.TryGetModApi<IHikersMod>("Owen013.MovementMod");
+        IsTheStrangerTheyAreInstalled = ModHelper.Interaction.ModExists("AnonymousStrangerOW.TheStrangerTheyAre");
+
+        // load assets
+        ViewmodelArmUtils.LoadAssetBundle();
 
         // ready
         ModHelper.Console.WriteLine($"Immersion is ready to go!", MessageType.Success);

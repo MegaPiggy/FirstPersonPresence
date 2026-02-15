@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Immersion.Utils;
+using UnityEngine;
 
 namespace Immersion.Components;
 
@@ -156,7 +157,10 @@ public class OffsetManager : MonoBehaviour
                 {
                     // change viewbob strength quickly if on ground
                     Vector3 groundVel = _playerController.GetRelativeGroundVelocity();
-                    groundVel.y = 0f;
+                    if (Mathf.Abs(groundVel.x) < 0.05f)
+                        groundVel.x = 0f;
+                    if (Mathf.Abs(groundVel.z) < 0.05f)
+                        groundVel.z = 0f;
 
                     if (ModMain.SmolHatchlingAPI != null)
                     {
@@ -239,6 +243,9 @@ public class OffsetManager : MonoBehaviour
                     lookInput.x = 0f;
                 }
 
+                // horizontal sway is reduced the more up/down player is looking
+                lookInput.x *= (Mathf.Cos(degreesY / 90f * Mathf.PI) + 1f) * 0.5f;
+
                 // cancel out vertical sway if player is at max or min vertical look angle and is trying to turn more in that direction
                 if (degreesY >= PlayerCameraController._maxDegreesYNormal)
                     lookInput.y = Mathf.Min(0f, lookInput.y);
@@ -251,13 +258,12 @@ public class OffsetManager : MonoBehaviour
 
             // x sway is less pronounced the more up/down the player is looking
             // sway is split into local (relative to camera) and global (relative to player)
-            float xSwayScale = (Mathf.Cos(degreesY / 90f * Mathf.PI) + 1f) * 0.5f;
             float localZOffset = 0.15f * (Mathf.Cos(Mathf.PI * _handSway.y) - 1f);
             float globalZOffset = 0.15f * (Mathf.Cos(Mathf.PI * _handSway.x) - 1f);
 
             // calculate and apply the final offset
-            var offset = new Vector3(_handSway.x * xSwayScale, _handSway.y, localZOffset);
-            offset += xSwayScale * globalZOffset * _cameraController.transform.InverseTransformDirection(_playerController.transform.forward);
+            var offset = new Vector3(_handSway.x, _handSway.y, localZOffset);
+            offset += globalZOffset * _cameraController.transform.InverseTransformDirection(_playerController.transform.forward);
             offset *= Config.HandSwayStrength * 0.25f;
             AddToolOffsets(offset);
 

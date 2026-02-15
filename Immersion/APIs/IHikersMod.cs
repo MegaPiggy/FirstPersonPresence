@@ -1,4 +1,4 @@
-﻿namespace Immersion.Interfaces;
+﻿namespace Immersion.APIs;
 
 public interface IHikersMod
 {

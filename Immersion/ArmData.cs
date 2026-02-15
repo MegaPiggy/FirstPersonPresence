@@ -32,7 +32,7 @@ public class ArmData
         if (jsonPath == "")
         {
             isDefaultArmData = true;
-            jsonPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "viewmodel-arm-data.json");
+            jsonPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}/viewmodel-arm-data.json";
             ModMain.Log($"Loading default ArmData...", MessageType.Info);
         }
         else
@@ -67,22 +67,22 @@ public class ArmData
         ModMain.Log($"ArmData loaded successfully!", MessageType.Success);
     }
 
-    public static ArmData GetArmData(string itemName)
+    public static ArmData GetArmData(string armDataID)
     {
         // if no ArmData has been loaded, or if no ArmData has been loaded for that specific item, load arm data just to make sure
-        if (s_armData == null || !s_armData.ContainsKey(itemName))
+        if (s_armData == null || !s_armData.ContainsKey(armDataID))
         {
             LoadArmData();
 
             // if ArmData still isn't loaded then it either doesn't exist or is part of a custom JSON that hasn't been loaded
-            if (!s_armData.ContainsKey(itemName))
+            if (!s_armData.ContainsKey(armDataID))
             {
                 LoadArmData();
-                ModMain.Log($"No ArmData found for \"{itemName}\"", MessageType.Error);
+                ModMain.Log($"No ArmData found for \"{armDataID}\"", MessageType.Error);
                 return null;
             }
         }
 
-        return s_armData[itemName];
+        return s_armData[armDataID];
     }
 }

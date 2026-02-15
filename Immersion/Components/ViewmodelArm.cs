@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using Immersion.Utils;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Immersion.Components;
 
 public class ViewmodelArm : MonoBehaviour
 {
-    private static GameObject s_viewmodelArmAsset;
-
     [SerializeField]
     private SkinnedMeshRenderer _armMeshNoSuit;
 
@@ -35,6 +34,7 @@ public class ViewmodelArm : MonoBehaviour
     {
         var viewmodelArm = NewViewmodelArm(playerTool.transform);
         viewmodelArm._playerTool = playerTool;
+        viewmodelArm.SetArmData(playerTool.name);
         return viewmodelArm;
     }
 
@@ -43,6 +43,13 @@ public class ViewmodelArm : MonoBehaviour
         var viewmodelArm = NewViewmodelArm(owItem.transform);
         viewmodelArm._owItem = owItem;
         owItem.onPickedUp += (item) => viewmodelArm.gameObject.SetActive(true);
+
+        string armDataID = ViewmodelArmUtils.TryGetArmDataID(owItem);
+        if (armDataID != null)
+        {
+            viewmodelArm.SetArmData(armDataID);
+        }
+
         return viewmodelArm;
     }
 
@@ -61,14 +68,14 @@ public class ViewmodelArm : MonoBehaviour
 
     public void OutputArmData()
     {
-        string output = "  [ARMDATA NAME HERE] {\n\n";
+        string output = "  [ARMDATA NAME HERE] {\n";
 
         var armPos = transform.localPosition;
         output += "    \"arm_offset_pos\": { " + $"\"x\": {armPos.x}, \"y\":  {armPos.y}, \"z\": {armPos.z}" + " },\n";
         var armRot = transform.localEulerAngles;
         output += "    \"arm_offset_rot\": { " + $"\"x\": {armRot.x}, \"y\":  {armRot.y}, \"z\": {armRot.z}" + " },\n";
         output += $"    \"arm_scale\": {10f * transform.localScale.x},\n";
-        output += $"    \"arm_shader\": \"{_armMeshNoSuit.material.shader.name}\",\n\n";
+        output += $"    \"arm_shader\": \"{_armMeshNoSuit.material.shader.name}\",\n";
         output += "    \"bone_eulers\": {\n";
 
         foreach (var keyValuePair in _bones)
@@ -77,141 +84,13 @@ public class ViewmodelArm : MonoBehaviour
             output += $"      \"{keyValuePair.Key}\": " + "{ " + $"\"x\": {eulers.x}, \"y\": {eulers.y}, \"z\": {eulers.z}" + " },\n";
         }
 
-        ModMain.Log(output + "    }\n\n  }");
-    }
-
-    internal static void OnEquipTool(PlayerTool tool)
-    {
-        // don't try to add viewmodel arm if disabled in config or if this tool already has one
-        if (!Config.EnableViewmodelArms) return;
-
-        // check for existing arm and enable if found (PlayerTool has no event for tool being equipped, so this is required)
-        var existingArm = tool.transform.Find("ViewmodelArm");
-        if (existingArm != null)
-        {
-            existingArm.gameObject.SetActive(true);
-            return;
-        }
-
-        if (tool is Signalscope)
-        {
-            NewViewmodelArm(tool)?.SetArmData("Signalscope");
-            return;
-        }
-
-        if (tool is NomaiTranslator)
-        {
-            NewViewmodelArm(tool)?.SetArmData("NomaiTranslator");
-            return;
-        }
-    }
-
-    internal static void OnPickUpItem(OWItem item)
-    {
-        if (!Config.EnableViewmodelArms) return;
-
-        // rotate lantern to put it in better position for viewmodel arm
-        if (item.GetItemType() == ItemType.Lantern)
-            item.transform.localEulerAngles = new Vector3(0f, 327f, 0f);
-
-        // don't try to add viewmodel arm if disabled in config or if this item already has one
-        if (item.transform.Find("ViewmodelArm")) return;
-
-        switch (item.GetItemType())
-        {
-            case ItemType.SharedStone:
-                if (item is SharedStone)
-                    NewViewmodelArm(item)?.SetArmData("SharedStone");
-                break;
-
-            case ItemType.Scroll:
-                if (item is ScrollItem)
-                {
-                    switch (item.name)
-                    {
-                        case "Prefab_NOM_Scroll_egg":
-                            NewViewmodelArm(item)?.SetArmData("Scroll_Egg");
-                            break;
-
-                        case "Prefab_NOM_Scroll_Jeff":
-                            NewViewmodelArm(item)?.SetArmData("Scroll_Jeff");
-                            break;
-
-                        default:
-                            NewViewmodelArm(item)?.SetArmData("Scroll");
-                            break;
-                    }
-                }
-                break;
-
-            case ItemType.ConversationStone:
-                if (item is NomaiConversationStone solanumStone)
-                {
-                    if (solanumStone._word == NomaiWord.Identify || solanumStone._word == NomaiWord.Explain)
-                        NewViewmodelArm(item)?.SetArmData("ConversationStone_Big");
-                    else
-                        NewViewmodelArm(item)?.SetArmData("ConversationStone");
-                }
-                break;
-
-            case ItemType.WarpCore:
-                if (item is WarpCoreItem warpCore)
-                {
-                    if (warpCore._warpCoreType == WarpCoreType.Vessel || warpCore._warpCoreType == WarpCoreType.VesselBroken)
-                        NewViewmodelArm(item)?.SetArmData("WarpCore");
-                    else
-                        NewViewmodelArm(item)?.SetArmData("WarpCore_Simple");
-                }
-                break;
-
-            case ItemType.Lantern:
-                if (item is SimpleLanternItem)
-                    NewViewmodelArm(item)?.SetArmData("Lantern");
-                break;
-
-            case ItemType.SlideReel:
-                if (item is SlideReelItem)
-                    NewViewmodelArm(item)?.SetArmData("SlideReel");
-                break;
-
-            case ItemType.DreamLantern:
-                if (item is DreamLanternItem dreamLantern)
-                {
-                    switch (dreamLantern._lanternType)
-                    {
-                        case DreamLanternType.Nonfunctioning:
-                            NewViewmodelArm(item)?.SetArmData("DreamLantern_Nonfunctioning");
-                            break;
-
-                        case DreamLanternType.Malfunctioning:
-                            NewViewmodelArm(item)?.SetArmData("DreamLantern_Malfunctioning");
-                            break;
-
-                        default:
-                            NewViewmodelArm(item)?.SetArmData("DreamLantern");
-                            break;
-                    }
-                }
-                break;
-
-            case ItemType.VisionTorch:
-                if (item is VisionTorchItem)
-                    NewViewmodelArm(item)?.SetArmData("VisionTorch");
-                break;
-        }
-    }
-
-    internal static void LoadAssetIfNull()
-    {
-        if (s_viewmodelArmAsset == null)
-            s_viewmodelArmAsset = ModMain.Instance.ModHelper.Assets.LoadBundle("AssetBundles/viewmodelarm").LoadAsset<GameObject>("Assets/ViewmodelArm.prefab");
+        ModMain.Log(output + "    }\n  }");
     }
 
     private static ViewmodelArm NewViewmodelArm(Transform parent)
     {
-        LoadAssetIfNull();
-
-        var viewmodelArm = Instantiate(s_viewmodelArmAsset).GetComponent<ViewmodelArm>();
+        var viewmodelArmAsset = ViewmodelArmUtils.ViewmodelArmAssetBundle.LoadAsset<GameObject>("Assets/ViewmodelArm.prefab");
+        var viewmodelArm = Instantiate(viewmodelArmAsset).GetComponent<ViewmodelArm>();
         viewmodelArm.name = "ViewmodelArm";
         viewmodelArm.transform.parent = parent;
         viewmodelArm.transform.localPosition = Vector3.zero;

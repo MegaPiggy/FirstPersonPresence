@@ -23,9 +23,6 @@
 		<None Include="manifest.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Include="viewmodel-arm-data.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="AssetBundles\**">
@@ -34,5 +31,10 @@
 	</ItemGroup>
 	<ItemGroup>
 		<Content Include="Immersion.csproj.user" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Update="viewmodel-arm-data.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
 	</ItemGroup>
 </Project>

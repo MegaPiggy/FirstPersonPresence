@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Immersion.Interfaces;
+namespace Immersion.APIs;
 
 public interface IImmersion
 {

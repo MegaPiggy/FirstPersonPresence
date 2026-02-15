@@ -4,20 +4,26 @@ namespace Immersion.Components;
 
 public class OffsetRoot : MonoBehaviour
 {
+    private GameObject offsetObject;
+
     private Vector3 nextLocalPosition;
 
     private Quaternion nextLocalRotation;
 
-    private GameObject pivotObject;
-
-    public static OffsetRoot NewOffsetRoot(string name, GameObject objectToOffset)
+    /// <summary>
+    /// Creates a new OffsetRoot for the specified GameObject
+    /// </summary>
+    /// <param name="name">The name of the OffsetRoot GameObject</param>
+    /// <param name="offsetObject">The GameObject that this OffsetRoot is offsetting</param>
+    /// <returns>The new OffsetRoot</returns>
+    public static OffsetRoot NewOffsetRoot(string name, GameObject offsetObject)
     {
         var offsetRoot = new GameObject(name).AddComponent<OffsetRoot>();
-        offsetRoot.transform.parent = objectToOffset.transform.parent;
+        offsetRoot.transform.parent = offsetObject.transform.parent;
         offsetRoot.transform.localPosition = Vector3.zero;
         offsetRoot.transform.localEulerAngles = Vector3.zero;
-        offsetRoot.pivotObject = objectToOffset;
-        objectToOffset.transform.parent = offsetRoot.transform;
+        offsetRoot.offsetObject = offsetObject;
+        offsetObject.transform.parent = offsetRoot.transform;
         return offsetRoot;
     }
 
@@ -56,7 +62,7 @@ public class OffsetRoot : MonoBehaviour
 
         transform.localPosition = nextLocalPosition;
         nextLocalRotation.ToAngleAxis(out float angle, out Vector3 axis);
-        transform.RotateAround(pivotObject.transform.position, pivotObject.transform.TransformDirection(axis), angle);
+        transform.RotateAround(offsetObject.transform.position, offsetObject.transform.TransformDirection(axis), angle);
 
         (nextLocalPosition, nextLocalRotation) = (Vector3.zero, Quaternion.identity);
     }
