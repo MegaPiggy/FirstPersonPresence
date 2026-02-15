@@ -36,7 +36,7 @@ public static class Config
 
     public static bool HideStowedItems { get; private set; }
 
-    public static void Configure(IModConfig config)
+    internal static void Configure(IModConfig config)
     {
         // viewmodel hands
         EnableViewmodelArms = config.GetSettingsValue<bool>("EnableViewmodelArms");

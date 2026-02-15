@@ -4,11 +4,11 @@ using Immersion.Components;
 namespace Immersion.Utils;
 
 [HarmonyPatch]
-public static class Patches
+internal static class Patches
 {
     [HarmonyPostfix]
     [HarmonyPatch(typeof(PlayerCameraController), nameof(PlayerCameraController.Start))]
-    public static void PlayerCameraController_Start_Postfix(PlayerCameraController __instance) =>
+    private static void PlayerCameraController_Start_Postfix(PlayerCameraController __instance) =>
         OffsetManager.AddToPlayerCamera(__instance);
 
     [HarmonyPostfix]

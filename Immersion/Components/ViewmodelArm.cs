@@ -53,9 +53,9 @@ public class ViewmodelArm : MonoBehaviour
         return viewmodelArm;
     }
 
-    public void SetArmData(string itemName)
+    public void SetArmData(string armDataID)
     {
-        var armData = ArmData.GetArmData(itemName);
+        var armData = ArmData.GetArmData(armDataID);
         if (armData == null) return;
 
         transform.localPosition = armData.armOffsetPos;
@@ -106,9 +106,18 @@ public class ViewmodelArm : MonoBehaviour
         _armMeshNoSuit.materials[1].shader = shader;
         _armMeshSuit.material.shader = shader;
 
+        // if using the viewmodel shader, the prepass meshes must be enabled to prevent viewmodel arms from appearing behind things
         bool isViewmodel = shaderName == "Outer Wilds/Utility/View Model" || shaderName == "Outer Wilds/Utility/View Model (Cutoff)";
         _prePassNoSuit.gameObject.SetActive(isViewmodel);
         _prePassSuit.gameObject.SetActive(isViewmodel);
+        if (isViewmodel)
+        {
+            // grab the ingame viewmodel prepass shader (the prefab one can't work properly)
+            var prepassShader = Shader.Find("Outer Wilds/Utility/View Model Prepass");
+            _prePassNoSuit.materials[0].shader = prepassShader;
+            _prePassNoSuit.materials[1].shader = prepassShader;
+            _prePassSuit.material.shader = prepassShader;
+        }
     }
 
     private void SetBoneEulers(Dictionary<string, Vector3> boneEulersDict)
@@ -125,6 +134,7 @@ public class ViewmodelArm : MonoBehaviour
         _playerModelArmNoSuit = player.transform.Find("Traveller_HEA_Player_v2/player_mesh_noSuit:Traveller_HEA_Player/player_mesh_noSuit:Player_RightArm").gameObject;
         _playerModelArmSuit = player.transform.Find("Traveller_HEA_Player_v2/Traveller_Mesh_v01:Traveller_Geo/Traveller_Mesh_v01:PlayerSuit_RightArm").gameObject;
 
+        // grab the bones that matter
         _bones = new Dictionary<string, Transform>
         {
             ["Shoulder"] = _armMeshNoSuit.bones[5],
@@ -143,11 +153,6 @@ public class ViewmodelArm : MonoBehaviour
             ["Thumb_03"] = _armMeshNoSuit.bones[18],
             ["Thumb_04"] = _armMeshNoSuit.bones[19]
         };
-
-        var prepassShader = Shader.Find("Outer Wilds/Utility/View Model Prepass");
-        _prePassNoSuit.materials[0].shader = prepassShader;
-        _prePassNoSuit.materials[1].shader = prepassShader;
-        _prePassSuit.material.shader = prepassShader;
     }
 
     private void LateUpdate()
