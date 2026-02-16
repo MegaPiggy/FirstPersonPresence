@@ -1,4 +1,4 @@
-﻿using Immersion.Utils;
+﻿using OWML.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +6,8 @@ namespace Immersion.Components;
 
 public class ViewmodelArm : MonoBehaviour
 {
+    private static AssetBundle s_viewmodelArmAssetBundle;
+
     [SerializeField]
     private SkinnedMeshRenderer _armMeshNoSuit;
 
@@ -44,7 +46,7 @@ public class ViewmodelArm : MonoBehaviour
         viewmodelArm._owItem = owItem;
         owItem.onPickedUp += (item) => viewmodelArm.gameObject.SetActive(true);
 
-        string armDataID = ViewmodelArmUtils.TryGetArmDataID(owItem);
+        string armDataID = TryGetArmDataID(owItem);
         if (armDataID != null)
         {
             viewmodelArm.SetArmData(armDataID);
@@ -87,9 +89,100 @@ public class ViewmodelArm : MonoBehaviour
         ModMain.Log(output + "    }\n  }");
     }
 
+    internal static void LoadAssetBundle()
+    {
+        if (s_viewmodelArmAssetBundle == null)
+            s_viewmodelArmAssetBundle = ModMain.Instance.ModHelper.Assets.LoadBundle("AssetBundles/viewmodelarm");
+    }
+
+    internal static string TryGetArmDataID(OWItem item)
+    {
+        if (ItemUtils.IsBaseGameItem(item))
+        {
+            var itemType = item.GetItemType();
+            switch (itemType)
+            {
+                // some items have variants
+                case ItemType.Scroll:
+                    return item.name switch
+                    {
+                        "Prefab_NOM_Scroll_egg" => "Scroll_Egg",
+                        "Prefab_NOM_Scroll_Jeff" => "Scroll_Jeff",
+                        _ => "Scroll"
+                    };
+                case ItemType.ConversationStone:
+                    var word = (item as NomaiConversationStone).GetWord();
+                    if (word == NomaiWord.Identify || word == NomaiWord.Explain)
+                        return "ConversationStone_Big";
+                    else
+                        return "ConversationStone";
+
+                case ItemType.WarpCore:
+                    var warpCoreType = (item as WarpCoreItem).GetWarpCoreType();
+                    if (warpCoreType == WarpCoreType.Vessel || warpCoreType == WarpCoreType.VesselBroken)
+                        return "WarpCore";
+                    else
+                        return "WarpCore_Simple";
+
+                case ItemType.DreamLantern:
+                    return (item as DreamLanternItem).GetLanternType() switch
+                    {
+                        DreamLanternType.Nonfunctioning => "DreamLantern_Nonfunctioning",
+                        DreamLanternType.Malfunctioning => "DreamLantern_Malfunctioning",
+                        _ => "DreamLantern"
+                    };
+
+                // for the rest, their arm data identifier is simply their item type
+                default:
+                    return itemType.GetName();
+            }
+        }
+        else if (ItemUtils.IsTSTAItem(item))
+            return $"TSTA_{item.GetDisplayName().Trim()}";
+
+        return null;
+    }
+
+    internal static void OnEquipTool(PlayerTool tool)
+    {
+        // don't try to add viewmodel arm if disabled in config
+        if (!Config.EnableViewmodelArms || !ArmData.ArmDataExists(tool.name)) return;
+
+        // check for existing arm and enable if found (PlayerTool has no event for tool being equipped, so this is required)
+        var existingArm = tool.transform.Find("ViewmodelArm");
+        if (existingArm != null)
+        {
+            existingArm.gameObject.SetActive(true);
+            return;
+        }
+
+        ViewmodelArm.NewViewmodelArm(tool);
+    }
+
+    internal static void OnPickUpItem(OWItem item)
+    {
+        if (!Config.EnableViewmodelArms) return;
+
+        bool isCompatibleItem = ItemUtils.IsBaseGameItem(item) || ItemUtils.IsTSTAItem(item);
+        if (isCompatibleItem)
+        {
+            ApplyItemAdjustments(item);
+            if (item.transform.Find("ViewmodelArm") == null)
+                ViewmodelArm.NewViewmodelArm(item);
+        }
+    }
+
+    private static void ApplyItemAdjustments(OWItem item)
+    {
+        if (ItemUtils.IsBaseGameItem(item) && item.GetItemType() == ItemType.Lantern)
+            item.transform.localEulerAngles = new Vector3(0f, 327f, 0f);
+        else if (ItemUtils.IsTSTAItem(item) && item.GetDisplayName() == "Skull")
+            ModMain.Instance.ModHelper.Events.Unity.FireOnNextUpdate(() => item.transform.localScale = 0.6f * Vector3.one);
+    }
+
     private static ViewmodelArm NewViewmodelArm(Transform parent)
     {
-        var viewmodelArmAsset = ViewmodelArmUtils.ViewmodelArmAssetBundle.LoadAsset<GameObject>("Assets/ViewmodelArm.prefab");
+        var viewmodelArmAsset = s_viewmodelArmAssetBundle.LoadAsset<GameObject>("Assets/ViewmodelArm.prefab");
         var viewmodelArm = Instantiate(viewmodelArmAsset).GetComponent<ViewmodelArm>();
         viewmodelArm.name = "ViewmodelArm";
         viewmodelArm.transform.parent = parent;

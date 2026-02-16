@@ -1,6 +1,6 @@
 ﻿using HarmonyLib;
 using Immersion.APIs;
-using Immersion.Utils;
+using Immersion.Components;
 using OWML.Common;
 using OWML.ModHelper;
 using System.Reflection;
@@ -51,7 +51,7 @@ public class ModMain : ModBehaviour
         IsTheStrangerTheyAreInstalled = ModHelper.Interaction.ModExists("AnonymousStrangerOW.TheStrangerTheyAre");
 
         // load assets
-        ViewmodelArmUtils.LoadAssetBundle();
+        ViewmodelArm.LoadAssetBundle();
 
         // ready
         ModHelper.Console.WriteLine($"Immersion is ready to go!", MessageType.Success);
