@@ -48,9 +48,7 @@ public class ViewmodelArm : MonoBehaviour
 
         string armDataID = TryGetArmDataID(owItem);
         if (armDataID != null)
-        {
             viewmodelArm.SetArmData(armDataID);
-        }
 
         return viewmodelArm;
     }
@@ -91,8 +89,7 @@ public class ViewmodelArm : MonoBehaviour
 
     internal static void LoadAssetBundle()
     {
-        if (s_viewmodelArmAssetBundle == null)
-            s_viewmodelArmAssetBundle = ModMain.Instance.ModHelper.Assets.LoadBundle("AssetBundles/viewmodelarm");
+        s_viewmodelArmAssetBundle = ModMain.Instance.ModHelper.Assets.LoadBundle("AssetBundles/viewmodelarm");
     }
 
     internal static string TryGetArmDataID(OWItem item)
@@ -156,19 +153,19 @@ public class ViewmodelArm : MonoBehaviour
             return;
         }
 
-        ViewmodelArm.NewViewmodelArm(tool);
+        NewViewmodelArm(tool);
     }
 
     internal static void OnPickUpItem(OWItem item)
     {
-        if (!Config.EnableViewmodelArms) return;
+        if (!Config.EnableViewmodelArms || !ArmData.ArmDataExists(TryGetArmDataID(item))) return;
 
         bool isCompatibleItem = ItemUtils.IsBaseGameItem(item) || ItemUtils.IsTSTAItem(item);
         if (isCompatibleItem)
         {
             ApplyItemAdjustments(item);
             if (item.transform.Find("ViewmodelArm") == null)
-                ViewmodelArm.NewViewmodelArm(item);
+                NewViewmodelArm(item);
         }
     }
 
