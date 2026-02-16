@@ -385,7 +385,7 @@
     }
   },
   
-  "TSTA_CloakMineral": {
+  "TSTA_Mineral": {
     "arm_offset_pos": { "x": -0.617, "y":  -0.115, "z": 0.33 },
     "arm_offset_rot": { "x": 358.7909, "y":  107.971, "z": 60.3106 },
     "arm_scale": 1,

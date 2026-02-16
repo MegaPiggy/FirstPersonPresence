@@ -26,6 +26,8 @@ public class ArmData
 
     private static Dictionary<string, ArmData> s_armData;
 
+    private static bool s_isDefaultArmDataLoaded;
+
     public static void LoadArmData(string jsonPath = "")
     {
         bool isDefaultArmData;
@@ -64,25 +66,25 @@ public class ArmData
                     s_armData.Add(data.Key, data.Value);
         }
 
+        if (isDefaultArmData)
+            s_isDefaultArmDataLoaded = true;
         ModMain.Log($"ArmData loaded successfully!", MessageType.Success);
+    }
+
+    public static bool ArmDataExists(string armDataID)
+    {
+        if ((s_armData == null || !s_armData.ContainsKey(armDataID)) && !s_isDefaultArmDataLoaded)
+            LoadArmData();
+
+        return s_armData.ContainsKey(armDataID);
     }
 
     public static ArmData GetArmData(string armDataID)
     {
-        // if no ArmData has been loaded, or if no ArmData has been loaded for that specific item, load arm data just to make sure
-        if (s_armData == null || !s_armData.ContainsKey(armDataID))
-        {
-            LoadArmData();
+        if (ArmDataExists(armDataID))
+            return s_armData[armDataID];
 
-            // if ArmData still isn't loaded then it either doesn't exist or is part of a custom JSON that hasn't been loaded
-            if (!s_armData.ContainsKey(armDataID))
-            {
-                LoadArmData();
-                ModMain.Log($"No ArmData found for \"{armDataID}\"", MessageType.Error);
-                return null;
-            }
-        }
-
-        return s_armData[armDataID];
+        ModMain.Log($"No ArmData found for {armDataID}", MessageType.Error);
+        return null;
     }
 }
