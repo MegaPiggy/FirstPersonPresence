@@ -57,7 +57,7 @@ internal static class ViewmodelArmUtils
             }
         }
         else if (IsTSTAItem(item))
-            return $"TSTA_{item.GetDisplayName()}";
+            return $"TSTA_{item.GetDisplayName().Trim()}";
 
         return null;
     }
@@ -82,7 +82,7 @@ internal static class ViewmodelArmUtils
     {
         if (!Config.EnableViewmodelArms) return;
 
-        var isCompatibleItem = IsBaseGameItem(item) || IsTSTAItem(item);
+        bool isCompatibleItem = IsBaseGameItem(item) || IsTSTAItem(item);
         if (isCompatibleItem)
         {
             ApplyItemAdjustments(item);
@@ -114,7 +114,7 @@ internal static class ViewmodelArmUtils
         string itemName = item.GetDisplayName();
         return
             itemName == "Mineral" ||
-            itemName == "Seal" ||
+            itemName == " Seal" ||
             itemName == "Skull";
     }
 
