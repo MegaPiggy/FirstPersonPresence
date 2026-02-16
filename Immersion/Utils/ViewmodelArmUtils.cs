@@ -51,7 +51,7 @@ internal static class ViewmodelArmUtils
                         _ => "DreamLantern"
                     };
 
-                // for the rest, their arm data identifier is simply their OWItem type
+                // for the rest, their arm data identifier is simply their item type
                 default:
                     return itemType.GetName();
             }
@@ -120,11 +120,9 @@ internal static class ViewmodelArmUtils
 
     private static void ApplyItemAdjustments(OWItem item)
     {
-        switch (item.GetItemType())
-        {
-            case ItemType.Lantern:
-                item.transform.localEulerAngles = new Vector3(0f, 327f, 0f);
-                break;
-        }
+        if (IsBaseGameItem(item) && item.GetItemType() == ItemType.Lantern)
+            item.transform.localEulerAngles = new Vector3(0f, 327f, 0f);
+        else if (IsTSTAItem(item) && item.GetDisplayName() == "Skull")
+            ModMain.Instance.ModHelper.Events.Unity.FireOnNextUpdate(() => item.transform.localScale = 5f * Vector3.one);
     }
 }
