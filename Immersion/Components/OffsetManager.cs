@@ -156,6 +156,7 @@ public class OffsetManager : MonoBehaviour
                 {
                     // change viewbob strength quickly if on ground
                     Vector3 groundVel = _playerController.GetRelativeGroundVelocity();
+                    groundVel.y = 0f;
                     if (Mathf.Abs(groundVel.x) < 0.05f)
                         groundVel.x = 0f;
                     if (Mathf.Abs(groundVel.z) < 0.05f)
