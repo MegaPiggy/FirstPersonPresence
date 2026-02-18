@@ -36,10 +36,7 @@ public class ModMain : ModBehaviour
 
     private void Awake()
     {
-        // set ModMain.Instance to be used by other classes (there should only ever be one ModMain instance at a time)
         Instance = this;
-
-        // create harmony patches
         new Harmony("Owen_013.FirstPersonPresence").PatchAll(Assembly.GetExecutingAssembly());
     }
 

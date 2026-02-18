@@ -7,7 +7,7 @@
     },
     "EnableViewmodelArms": {
       "title": "Enable Viewmodel Arms",
-      "tooltip": "Adds an arm model to every tool/item you can pick up.",
+      "tooltip": "Adds an arm model to every item/tool you can hold.",
       "type": "toggle",
       "value": true
     },
@@ -31,7 +31,7 @@
     },
     "EnableHandBob": {
       "title": "Enable Hand Bobbing",
-      "tooltip": "Makes your hand bob while you're moving and holding a tool/item.",
+      "tooltip": "Makes your held item/tool bob while you're moving.",
       "type": "toggle",
       "value": true
     },
@@ -49,7 +49,7 @@
     },
     "EnableHandHeightOffset": {
       "title": "Enable Hand Height Offset",
-      "tooltip": "Makes your hand move up/down while holding a tool/item based on how far up/down you are looking.",
+      "tooltip": "Makes your held item/tool move up/down based on how far up/down you are looking.",
       "type": "toggle",
       "value": true
     },
@@ -67,7 +67,7 @@
     },
     "EnableHandSway": {
       "title": "Enable Hand Sway",
-      "tooltip": "Makes your hand lag behind the camera as you look around while holding a tool/item.",
+      "tooltip": "Makes your held item/tool lag behind the camera as you look around.",
       "type": "toggle",
       "value": true
     },
@@ -85,7 +85,7 @@
     },
     "EnableBreathingAnim": {
       "title": "Enable Breathing Animation",
-      "tooltip": "Makes the tool move very subtley while you're standing still.",
+      "tooltip": "Makes the held item/tool move very subtley while you're standing still.",
       "type": "toggle",
       "value": true
     },
@@ -115,7 +115,7 @@
     },
     "EnableSprintingAnim": {
       "title": "Enable Sprinting Animation",
-      "tooltip": "(REQUIRES HIKER'S MOD) Makes the tool move downward while you're sprinting.",
+      "tooltip": "(REQUIRES HIKER'S MOD) Makes the held item/tool move downward while you're sprinting.",
       "type": "toggle",
       "value": true
     },
