@@ -7,6 +7,7 @@ namespace Immersion.Components;
 public class ViewmodelArm : MonoBehaviour
 {
     private static AssetBundle s_viewmodelArmAssetBundle;
+    private static GameObject s_viewmodelArmAsset;
 
     [SerializeField]
     private SkinnedMeshRenderer _armMeshNoSuit;
@@ -90,6 +91,7 @@ public class ViewmodelArm : MonoBehaviour
     internal static void LoadAssetBundle()
     {
         s_viewmodelArmAssetBundle = ModMain.Instance.ModHelper.Assets.LoadBundle("AssetBundles/viewmodelarm");
+        s_viewmodelArmAsset = s_viewmodelArmAssetBundle.LoadAsset<GameObject>("Assets/ViewmodelArm.prefab");
     }
 
     internal static string TryGetArmDataID(OWItem item)
@@ -179,8 +181,7 @@ public class ViewmodelArm : MonoBehaviour
 
     private static ViewmodelArm NewViewmodelArm(Transform parent)
     {
-        var viewmodelArmAsset = s_viewmodelArmAssetBundle.LoadAsset<GameObject>("Assets/ViewmodelArm.prefab");
-        var viewmodelArm = Instantiate(viewmodelArmAsset).GetComponent<ViewmodelArm>();
+        var viewmodelArm = Instantiate(s_viewmodelArmAsset).GetComponent<ViewmodelArm>();
         viewmodelArm.name = "ViewmodelArm";
         viewmodelArm.transform.parent = parent;
         viewmodelArm.transform.localPosition = Vector3.zero;
