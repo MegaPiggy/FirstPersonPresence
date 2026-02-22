@@ -94,9 +94,9 @@ public class ViewmodelArm : MonoBehaviour
 
     internal static string TryGetArmDataID(OWItem item)
     {
+        var itemType = item.GetItemType();
         if (ItemUtils.IsBaseGameItem(item))
         {
-            var itemType = item.GetItemType();
             switch (itemType)
             {
                 // some items have variants
@@ -135,7 +135,7 @@ public class ViewmodelArm : MonoBehaviour
             }
         }
         else if (ItemUtils.IsTSTAItem(item))
-            return $"TSTA_{item.GetDisplayName().Trim()}";
+            return $"TSTA_{itemType.GetName()}";
 
         return null;
     }
